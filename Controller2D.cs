@@ -7,8 +7,8 @@ public class Controller2D : MonoBehaviour {
 	public LayerMask collisionMask;
 
 	const float skinWidth = 0.015f;
-	public int horizontalRayCount = 4;
-	public int verticalRayCount = 4;
+	public int horizontalRayCount = 8;
+	public int verticalRayCount = 8;
 
 	float horizontalRaySpacing;
 	float verticalRaySpacing;
@@ -16,6 +16,13 @@ public class Controller2D : MonoBehaviour {
 	BoxCollider2D collider;
 	RaycastOrigins raycastOrigins;
 	public CollisionInfo collisions;
+
+	// death
+	public LayerMask deathMask;
+	Vector3 respawnPoint = new Vector3 (4.91f, 0.73f, 0);
+
+	public LayerMask blueMask;
+	public LayerMask greenMask;
 
 	void Start () {
 		collider = GetComponent<BoxCollider2D> ();
@@ -44,7 +51,10 @@ public class Controller2D : MonoBehaviour {
 			Vector2 rayOrigin = (directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.topRight;
 			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
-			
+			RaycastHit2D deathCheck = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, deathMask);
+			RaycastHit2D blueCheck = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, blueMask);
+			RaycastHit2D greenCheck = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, greenMask);
+
 			Debug.DrawRay (rayOrigin, Vector2.right * directionX * rayLength, Color.red);
 			
 			if (hit) {
@@ -53,6 +63,12 @@ public class Controller2D : MonoBehaviour {
 
 				collisions.left = directionX == -1;
 				collisions.right = directionX == 1;
+			}
+			if (deathCheck) {
+				transform.position = respawnPoint;
+			}
+			if (blueCheck) {
+
 			}
 		}
 	}
@@ -65,6 +81,7 @@ public class Controller2D : MonoBehaviour {
 			Vector2 rayOrigin = (directionY == -1)?raycastOrigins.bottomLeft:raycastOrigins.topLeft;
 			rayOrigin += Vector2.right * (verticalRaySpacing * i + velocity.x);
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
+			RaycastHit2D deathCheck = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, deathMask);
 
 			Debug.DrawRay (rayOrigin, Vector2.up * directionY * rayLength, Color.red);
 
@@ -74,6 +91,9 @@ public class Controller2D : MonoBehaviour {
 
 				collisions.below = directionY == -1;
 				collisions.above = directionY == 1;
+			}
+			if (deathCheck) {
+				transform.position = respawnPoint;
 			}
 		}
 	}
